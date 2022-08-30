@@ -5,8 +5,10 @@ import axios from 'axios'
 const Countries = ({countries, countriesToShow}) => {
   if (countries) {
     const countryData = countriesToShow()
-    if (typeof countryData[0] === 'object') {
+    if (typeof countryData[0] === 'object' && countryData.length === 1) {
       return <CountryPage countryObj={countryData[0]}/>
+    } else if (typeof countryData[0] === 'object') {
+      return countryData.map((country,i) => <CountryOption key={i} countryObj={country}/>)
     } else {
       return countryData.map((content, i) => <div key={i}>{content}</div>)
     }
@@ -15,8 +17,27 @@ const Countries = ({countries, countriesToShow}) => {
   }
 }
 
+const CountryOption = ({countryObj}) => {
+  const [isShown, setShown] = useState(false)
+
+  const handleClick = event => {
+    setShown(current => !current);
+  };
+
+  const showPage = () => {
+    return <CountryPage countryObj={countryObj}/>
+  }
+
+  return (
+    <div> 
+    {countryObj.name.common} 
+    <button onClick={handleClick}>show</button>
+    {isShown && showPage()}
+    </div>
+  )
+}
+
 const CountryPage = ({countryObj}) => {
-  //console.log("starting countryPage")
   return (
     <div> 
       <h1>{countryObj.name.common}</h1>
@@ -36,7 +57,7 @@ const CountryPage = ({countryObj}) => {
     
 
 const Query = ({query, handleQuery}) =>
-    <input value={query} onChange={handleQuery}/>
+    <input value={query} onChange={handleQuery} />
 
 const App = () => {
   const [countries, setCountries] = useState() 
@@ -50,7 +71,6 @@ const App = () => {
         setCountries(response.data)
       })
   }, [])
-  //console.log("Looking at the first element:", countries[0])
 
   const toArray = (obj)  => {
     const result = [];
@@ -70,7 +90,8 @@ const App = () => {
     if (noOfFit > 10) {
       return ["Too many matches, specify another filter"]
     } else if (noOfFit <= 10 && noOfFit >1 ) {
-      return filtered.map(country => country.name.common)
+
+      return filtered
     } else if (noOfFit === 1) {
       return filtered
     } else {
