@@ -1,60 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-
-//either renders a list of country names or redirect to a country's specific "page"
-const Countries = ({countries, countriesToShow}) => {
-  if (countries) {
-    const countryData = countriesToShow()
-    if (typeof countryData[0] === 'object' && countryData.length === 1) {
-      return <CountryPage countryObj={countryData[0]}/>
-    } else if (typeof countryData[0] === 'object') {
-      return countryData.map((country,i) => <CountryOption key={i} countryObj={country}/>)
-    } else {
-      return countryData.map((content, i) => <div key={i}>{content}</div>)
-    }
-  } else {
-    return <p>Loading...</p>
-  }
-}
-
-const CountryOption = ({countryObj}) => {
-  const [isShown, setShown] = useState(false)
-
-  const handleClick = event => {
-    setShown(current => !current);
-  };
-
-  const showPage = () => {
-    return <CountryPage countryObj={countryObj}/>
-  }
-
-  return (
-    <div> 
-    {countryObj.name.common} 
-    <button onClick={handleClick}>show</button>
-    {isShown && showPage()}
-    </div>
-  )
-}
-
-const CountryPage = ({countryObj}) => {
-  return (
-    <div> 
-      <h1>{countryObj.name.common}</h1>
-      capital: {countryObj.capital} <br></br>
-      area: {countryObj.area}
-      <h2>languages:</h2>
-      <ul>
-        {Object.values(countryObj.languages).map((language, i) => <li key={i}>{language}</li>)}
-      </ul>
-      <img 
-        src={countryObj.flags.png}
-        alt="Flag"
-      />
-    </div>
-  )
-}
-    
+import Countries from './components/countries'
 
 const Query = ({query, handleQuery}) =>
     <input value={query} onChange={handleQuery} />
@@ -89,10 +35,7 @@ const App = () => {
     const noOfFit = filtered.length
     if (noOfFit > 10) {
       return ["Too many matches, specify another filter"]
-    } else if (noOfFit <= 10 && noOfFit >1 ) {
-
-      return filtered
-    } else if (noOfFit === 1) {
+    } else if (noOfFit <= 10 && noOfFit >=1 ) {
       return filtered
     } else {
       return ["No match"]
