@@ -20,7 +20,7 @@ const Countries = ({countries, countriesToShow}) => {
 const CountryOption = ({countryObj}) => {
     const [isShown, setShown] = useState(false)
   
-    const handleClick = event => {
+    const handleClick = () => {
       setShown(current => !current);
     };
   
