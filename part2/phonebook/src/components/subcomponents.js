@@ -1,6 +1,6 @@
 import personService from '../services/persons'
 
-const Filter = ({filterBy, handleFilter}) =>
+const Filter = ({ filterBy, handleFilter }) =>
     <input value={filterBy} onChange={handleFilter}/>
 
 const PersonForm = ({ addPerson, newName, handleNewName, newNumber, handleNewNumber }) => {
@@ -14,9 +14,9 @@ const PersonForm = ({ addPerson, newName, handleNewName, newNumber, handleNewNum
     </div>
     <div>number: 
         <input
-        value={newNumber}
+        value={ newNumber }
         placeholder='Enter new number'
-        onChange={handleNewNumber} 
+        onChange={ handleNewNumber } 
         />
     </div>
     <div>
@@ -25,12 +25,16 @@ const PersonForm = ({ addPerson, newName, handleNewName, newNumber, handleNewNum
     </form>
 }
 
-const Contacts = ({peopleToShow}) => {
-    //At the current stage, refreshing of the webpage is needed to show changes after deletion
+const Contacts = ({ peopleToShow, notify, notificationStyle, persons, setPersons }) => {
+    //If a delete action is performed soon after the name is deleted in another browser
+    //The page won't crash and deletion will be "successful", but the console will report errors
     const handleClick = (id, name) => {
         console.log("Delete button clicked")
         if (window.confirm(`Delete ${name}?`)) {
             personService.remove(id)
+            notificationStyle = {...notificationStyle, color: 'green'}
+            notify(`Deleted ${name}`)
+            setPersons(persons.filter(n => n.id !== id)) //notify and updated the pagee
         }
     }
 
@@ -41,5 +45,17 @@ const Contacts = ({peopleToShow}) => {
         </div>
     )
 }
+
+const Notification = ({ message, notificationStyle }) => {
+    if (message === null) {
+      return null
+    }
+  
+    return (
+      <div style={notificationStyle} >
+        {message}
+      </div>
+    )
+}
     
-export {Filter, PersonForm, Contacts,}
+export { Filter, PersonForm, Contacts, Notification }

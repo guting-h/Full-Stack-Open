@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react'
-import { Filter, PersonForm, Contacts } from './components/subcomponents'
+import { Filter, PersonForm, Contacts, Notification } from './components/subcomponents'
 import personService from './services/persons'
+
+let notificationStyle = {
+  color: 'green',
+  background: 'lightgrey',
+  fontSize: 20,
+  borderStyle: 'solid',
+  borderRadius: 5,
+  padding: 10,
+  marginBottom: 10,
+}
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterBy, setFilter] = useState('')
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -16,11 +27,23 @@ const App = () => {
       })
   }, [])
 
+  const notify = ( message ) => {
+    setMessage(message)
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
+  }
+
+  const resetFields = () => {
+    setNewName('')
+    setNewNumber('')
+  }
+
   const addPerson = (event) => {
     event.preventDefault()
     const names = persons.map(person => person.name)
      
-    if (names.includes(newName.trim())) {
+    if (names.includes(newName.trim())) {  
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
         const oldContact = persons.find(person => person.name === newName.trim())
         const updated = { ...oldContact, number: newNumber}
@@ -28,10 +51,16 @@ const App = () => {
           .update(oldContact.id, updated)
           .then(response => {
             setPersons(persons.map(person => person.id !== oldContact.id ? person : response.data))
-            setNewName('')
-            setNewNumber('')
+            notificationStyle = {...notificationStyle, color: 'green'}
+            notify(`Updated ${newName}'s number`)
+            resetFields()
           })
-      } 
+          .catch(error => {
+            notificationStyle = {...notificationStyle, color: 'red'}
+            notify(`Information of ${newName} has already been removed from server`)
+            setPersons(persons.filter(n => n.id !== oldContact.id))
+          })
+      }
     } else {
       const personObject = {
         name: newName.trim(),
@@ -43,8 +72,9 @@ const App = () => {
         .create(personObject)
         .then(response => {
           setPersons(persons.concat(response.data))
-          setNewName('')
-          setNewNumber('')
+          notificationStyle = {...notificationStyle, color: 'green'}
+          notify(`Added ${newName}`)
+          resetFields()
         })
     }
   }
@@ -60,10 +90,11 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notification message={message} notificationStyle={notificationStyle}/>
        filter by name: 
       <Filter filterBy={filterBy} handleFilter={handleFilter}/>
-      <h3>Add a new contact</h3>
+      <h2>Add a new contact</h2>
       <PersonForm 
         newName={newName} 
         addPerson={addPerson} 
@@ -72,7 +103,14 @@ const App = () => {
         handleNewNumber={handleNewNumber} 
       />
       <h2>Numbers</h2>
-      <Contacts peopleToShow={peopleToShow()}/>
+      <Contacts 
+        peopleToShow={peopleToShow()} 
+        setMessage={setMessage}
+        notify={notify}
+        notificationStyle={notificationStyle}
+        persons={persons}
+        setPersons={setPersons}
+      />
     </div>
   )
 }
