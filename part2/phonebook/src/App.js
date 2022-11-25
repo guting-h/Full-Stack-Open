@@ -71,7 +71,7 @@ const App = () => {
       personService
         .create(personObject)
         .then(response => {
-          setPersons(persons.concat(response.data))
+          setPersons(response.data)//setPersons(persons.concat(response.data))
           notificationStyle = {...notificationStyle, color: 'green'}
           notify(`Added ${newName}`)
           resetFields()
