@@ -65,13 +65,11 @@ const App = () => {
       const personObject = {
         name: newName.trim(),
         number: newNumber,
-        id: "id" + Math.random().toString(16).slice(2), // generates a random id s.t. deleting then adding persons in a random order 
-                                                        // won't cause an error due to duplicate id
       }
       personService
         .create(personObject)
         .then(response => {
-          setPersons(response.data)//setPersons(persons.concat(response.data))
+          setPersons(persons.concat(response.data))
           notificationStyle = {...notificationStyle, color: 'green'}
           notify(`Added ${newName}`)
           resetFields()
@@ -102,7 +100,7 @@ const App = () => {
         newNumber={newNumber} 
         handleNewNumber={handleNewNumber} 
       />
-      <h2>Numbers</h2>
+      <h2>Contacts</h2>
       <Contacts 
         peopleToShow={peopleToShow()} 
         setMessage={setMessage}
