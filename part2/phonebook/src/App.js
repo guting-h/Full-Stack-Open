@@ -74,6 +74,11 @@ const App = () => {
           notify(`Added ${newName}`)
           resetFields()
         })
+        .catch(error => {
+          console.log(error.response.data.error)
+          notificationStyle = {...notificationStyle, color: 'red'}
+          notify(error.response.data.error)
+        })
     }
   }
 
