@@ -57,8 +57,13 @@ const App = () => {
           })
           .catch(error => {
             notificationStyle = {...notificationStyle, color: 'red'}
-            notify(`Information of ${newName} has already been removed from server`)
-            setPersons(persons.filter(n => n.id !== oldContact.id))
+            if (Number(error.response.status) === 400) {
+              notify(error.response.data.error)
+            } else {
+              notify(`Information of ${newName} has already been removed from server`)
+              setPersons(persons.filter(n => n.id !== oldContact.id))
+            }
+            
           })
       }
     } else {
@@ -89,7 +94,7 @@ const App = () => {
   const handleNewNumber = (event) => setNewNumber(event.target.value)
 
   const peopleToShow = () => 
-    persons.filter(p => p.name.toLowerCase().includes(filterBy.toLowerCase()))
+    persons.filter(p => p !== null && p.name.toLowerCase().includes(filterBy.toLowerCase()))
 
   return (
     <div>
