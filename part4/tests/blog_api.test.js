@@ -107,10 +107,10 @@ describe('adding new blogs', () => {
       },
     ]
 
-    for (let blog of invalidBlogs) {
+    for (let i = 0; i < invalidBlogs.length; i ++) {
       await api
         .post('/api/blogs')
-        .send(blog)
+        .send(invalidBlogs[i])
         .expect(400)
     }
   })
