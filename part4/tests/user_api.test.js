@@ -47,7 +47,7 @@ describe('user administration', () => {
 
   test('invalid users: username or password or both missing, should not be added', async () => {
     const usersAtStart = await helper.usersInDb()
-
+    console.log(usersAtStart)
     const invalidUsers = [
       {
         name: 'Potato Carrotson',

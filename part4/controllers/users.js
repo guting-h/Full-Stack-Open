@@ -3,13 +3,14 @@ const User  = require('../models/user')
 const bcrypt = require('bcrypt')
 
 // 4.15
-userRouter.get('/users', async (request, response) => {
+userRouter.get('/', async (request, response) => {
   const users = await User.find({})
+    .populate('blogs', { url: 1, title: 1, author: 1 })
   response.json(users)
 })
 
 // 4.15
-userRouter.post('/users', async (request, response) => {
+userRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
   // check that the username is unique
   const existingUser = await User.findOne({ username })

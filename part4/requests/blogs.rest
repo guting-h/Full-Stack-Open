@@ -1,0 +1,23 @@
+GET http://localhost:3003/api/blogs
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNhcnJvdCIsImlkIjoiNjM5ZGI5Yzg1ZTFmOGY4NjY4OGFjOWZkIiwiaWF0IjoxNjcxNDQzOTc1fQ.3tJafzLa8xjUlzRQCk2UK6Ran2U5A55VBIFgT1wqjtE
+
+{
+    "title": "carrot-tomato",
+    "author": "potato",
+    "url": "http://carrot-tomator.com/wow/potato",
+    "likes": 5
+}
+
+###
+DELETE http://localhost:3003/api/blogs/63a03a6a15debb78787997e5
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNhcnJvdCIsImlkIjoiNjM5ZGI5Yzg1ZTFmOGY4NjY4OGFjOWZkIiwiaWF0IjoxNjcxNDQzOTc1fQ.3tJafzLa8xjUlzRQCk2UK6Ran2U5A55VBIFgT1wqjtE
+
+###
+DELETE http://localhost:3003/api/blogs/63a03a6a15debb78787997e5
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNhcnJvdDIiLCJpZCI6IjYzYTAyZjFkMjczNjIxZTRiZjBjMThjZiIsImlhdCI6MTY3MTQ0Mzk5NX0.mmLKEDxfHeW9K_vcvelizo6s6mPxf9Tg6VFXtXyTNy8
