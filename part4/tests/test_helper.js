@@ -74,18 +74,6 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
-const nonExistingId = async () => {
-  const blog = new Blog({
-    title: 'willremovethissoon',
-    author: 'willremovethissoon',
-    url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
-  })
-  await blog.save()
-  await blog.remove()
-
-  return blog._id.toString()
-}
-
 const usersInDb = async () => {
   const users = await User.find({})
   return users.map(u => u.toJSON())
@@ -93,5 +81,5 @@ const usersInDb = async () => {
 
 module.exports = {
   listWithOneBlog, listOfBlogs, initialUser,
-  blogsInDb, nonExistingId, usersInDb,
+  blogsInDb, usersInDb,
 }

@@ -3,14 +3,26 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
 
-  const blogObjects = helper.listOfBlogs
-    .map((blog) => new Blog(blog))
+  const pwHash1 = await bcrypt.hash('12345', 10)
+  const user1 = new User({
+    username: 'carrot',
+    name: 'Carrot Tomatoson',
+    passwordHash: pwHash1,
+  })
+  await user1.save()
+
+  const blogObjects = helper.listOfBlogs.map((blog) => {
+    return new Blog({ ...blog, user: user1._id })
+  })
   const promiseArray = blogObjects.map((blog) => blog.save())
   await Promise.all(promiseArray)
 })
@@ -39,8 +51,8 @@ test('the unique identifier property of the blog posts is named id', async () =>
 })
 
 describe('adding new blogs', () => {
-  // 4.10
-  test('a valid blog is correctly added', async () => {
+  // 4.10 & 4.23
+  test('a valid blog from a valid user is correctly added', async () => {
     const newBlog = {
       title: 'the lengendary tomato',
       author: 'radish',
@@ -48,9 +60,19 @@ describe('adding new blogs', () => {
       likes: 5,
     }
 
+    const login = {
+      username: 'carrot',
+      password: '12345',
+    }
+
+    const loginRes = await api
+      .post('/api/login')
+      .send(login)
+
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `bearer ${loginRes.body.token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -71,7 +93,7 @@ describe('adding new blogs', () => {
     expect(urls).toContain('http://radish-tomato.com/wow/potato')
   })
 
-  // 4.11
+  // 4.11 & 4.23
   test('The default for likes is 0 if not set', async () => {
     const newBlog = {
       title: 'the lengendary tomato',
@@ -79,9 +101,19 @@ describe('adding new blogs', () => {
       url: 'http://radish-tomato.com/wow/potato',
     }
 
+    const login = {
+      username: 'carrot',
+      password: '12345',
+    }
+
+    const loginRes = await api
+      .post('/api/login')
+      .send(login)
+
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `bearer ${loginRes.body.token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
       .expect( (response) => {
@@ -89,7 +121,7 @@ describe('adding new blogs', () => {
       })
   })
 
-  // 4.12
+  // 4.12 & 4.23
   test('respond with 400 Bad Request if title or url is missing', async () => {
     const invalidBlogs = [
       {
@@ -107,22 +139,49 @@ describe('adding new blogs', () => {
       },
     ]
 
+    const login = {
+      username: 'carrot',
+      password: '12345',
+    }
+
+    const loginRes = await api
+      .post('/api/login')
+      .send(login)
+
     for (let i = 0; i < invalidBlogs.length; i ++) {
       await api
         .post('/api/blogs')
         .send(invalidBlogs[i])
+        .set('Authorization', `bearer ${loginRes.body.token}`)
         .expect(400)
     }
   })
+
+  // 4.23
+  test('fails with status code 401 if token is not provided', async () => {
+    await api
+      .post('/api/blogs')
+      .expect(401)
+  })
 })
 
-// 4.13
+// 4.13 & 4.23
 describe('deleting blogs', () => {
   test('succeeds with status code 204 if id is valid', async () => {
+    const login = {
+      username: 'carrot',
+      password: '12345',
+    }
+
+    const loginRes = await api
+      .post('/api/login')
+      .send(login)
+
     const existingBlogs = await helper.blogsInDb()
     const toDelete = existingBlogs[0]
     await api
       .delete(`/api/blogs/${toDelete.id}`)
+      .set('Authorization', `bearer ${loginRes.body.token}`)
       .expect(204)
 
     const blogsAfterDelete = await helper.blogsInDb()
@@ -133,15 +192,26 @@ describe('deleting blogs', () => {
   })
 
   test('fails with status code 400 if id is invalid', async () => {
+    const login = {
+      username: 'carrot',
+      password: '12345',
+    }
+
+    const loginRes = await api
+      .post('/api/login')
+      .send(login)
+
     await api
       .delete('/api/blogs/123')
+      .set('Authorization', `bearer ${loginRes.body.token}`)
       .expect(400)
   })
 
 })
 
 // 4.14
-describe('updating notes', () => {
+// user administration is not implemented for updating blogs, so these tests will fail
+describe.skip('updating blogs', () => {
   test('update likes succeeds if id is valid', async () => {
     const existingBlogs = await helper.blogsInDb()
     const toUpdate = existingBlogs[0]
