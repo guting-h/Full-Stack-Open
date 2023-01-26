@@ -17,7 +17,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-  const noteFormRef = useRef()
+  const blogFormRef = useRef()
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -49,11 +49,13 @@ const App = () => {
   }
 
   const addBlog = (blogObj) => {
-    noteFormRef.current.toggleVisibility()
+    blogFormRef.current.toggleVisibility()
     blogService
       .create(blogObj)
       .then(blog => {
-        setBlogs(blogs.concat(blog))
+        blogService.getAll().then(blogs =>
+          setBlogs( blogs )
+        )
         notify(`${blog.title} by ${blog.author} added`)
       }).catch(error => {
         notify(error.response.data.error)
@@ -70,7 +72,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -98,11 +100,16 @@ const App = () => {
           <h2>blogs</h2>
           {user.name} logged in <br />
           <button onClick={handleLogout}>Logout</button>
-          <Togglable buttonLabel="new blog" closeLabel="close" ref={noteFormRef}>
-            <BlogForm createBlog={addBlog}/>
+          <Togglable buttonLabel="new blog" closeLabel="close" ref={blogFormRef}>
+            <BlogForm createBlog={addBlog} />
           </Togglable>
           {blogs.sort((a, b) => b.likes-a.likes).map(blog => 
-            <Blog key={blog.id} blog={blog} blogs={blogs} setBlogs={setBlogs} user={user}/>
+            <Blog key={blog.id} 
+                  blog={blog} 
+                  blogs={blogs} 
+                  setBlogs={setBlogs} 
+                  user={user} 
+                  notify={notify}/>
           )}
         </div>
       }

@@ -32,8 +32,8 @@ const remove = async (blogID) => {
     headers: { Authorization: token },
   }
   const url = baseUrl + '/' + blogID
-  const response = await axios.delete(url, config)
-  return response.data
+  const request = await axios.delete(url, config)
+  return request.data
 }
 
 export default { getAll, create, setToken, update, remove }

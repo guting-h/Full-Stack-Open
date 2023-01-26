@@ -1,7 +1,7 @@
 import Togglable from "./Togglable"
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, blogs, setBlogs, user }) => {
+const Blog = ({ blog, blogs, setBlogs, user, notify }) => {
   const blogStyle = {
     paddingTop: 5,
     paddingBottom: 5,
@@ -25,9 +25,9 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
     //event.preventDefault()
     try {
       if (window.confirm(`Remove ${blog.title} by ${blog.author}?`)) {
-        const oldBlog = await blogService.remove(blog.id)
-        setBlogs(blogs.filter(b => b.id !== oldBlog.id))
-        console.log(blogs)
+        await blogService.remove(blog.id)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        notify(`${blog.title} by ${blog.author} removed`)
       }
     } catch (exception) {
       console.log(exception)
@@ -41,7 +41,7 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
         {blog.url} <br/>
         likes: {blog.likes} <button onClick={imcrementLikes}>like</button> <br/>
         posted by {blog.user.name}
-        {user.username === blog.user.username ?
+        {user.username === blog.user.username?
           <div><button onClick={handleDelete}>remove blog</button> <br/> </div> :
           <br/>
         } 
