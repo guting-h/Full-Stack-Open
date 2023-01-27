@@ -1,8 +1,8 @@
 import Togglable from "./Togglable"
-import blogService from "../services/blogs"
+//import blogService from "../services/blogs"
 import PropTypes from "prop-types"
 
-const Blog = ({ blog, blogs, setBlogs, user, notify }) => {
+const Blog = ({ blog, user, incrementLikes, handleDelete }) => {
   const blogStyle = {
     paddingTop: 5,
     paddingBottom: 5,
@@ -12,51 +12,31 @@ const Blog = ({ blog, blogs, setBlogs, user, notify }) => {
     marginBottom: 5
   }
 
-  const imcrementLikes = async (event) => {
-    event.preventDefault()
-    try {
-      const updated = await blogService.update({  ...blog, user: blog.user.id, likes: blog.likes + 1 }, blog.id)
-      setBlogs(blogs.map(b => b.id !== updated.id ? b : updated))
-    } catch (exception) {
-      console.log(exception)
-    }
-  }
-
-  const handleDelete = async () => {
-
-    try {
-      if (window.confirm(`Remove ${blog.title} by ${blog.author}?`)) {
-        await blogService.remove(blog.id)
-        setBlogs(blogs.filter(b => b.id !== blog.id))
-        notify(`${blog.title} by ${blog.author} removed`)
-      }
-    } catch (exception) {
-      console.log(exception)
-    }
-  }
-
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog">
       {blog.title} by {blog.author}
       <Togglable buttonLabel="view" closeLabel="hide">
-        {blog.url} <br/>
-          likes: {blog.likes} <button onClick={imcrementLikes}>like</button> <br/>
-          posted by {blog.user.name}
-        {user.username === blog.user.username?
-          <div><button onClick={handleDelete}>remove blog</button> <br/> </div> :
-          <br/>
-        }
+        <div className="toggledContent">
+          {blog.url} <br/>
+            likes: {blog.likes} <button onClick={() => incrementLikes(blog)}>like</button> <br/>
+            posted by {blog.user.name}
+          {user.username === blog.user.username?
+            <div><button onClick={() => handleDelete(blog)}>remove blog</button> <br/> </div> :
+            <br/>
+          }
+        </div>
       </Togglable>
+
     </div>
   )
 }
 
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
-  blogs: PropTypes.array.isRequired,
-  setBlogs: PropTypes.func.isRequired,
+  blogs: PropTypes.array,
+  setBlogs: PropTypes.func,
   user: PropTypes.object.isRequired,
-  notify: PropTypes.func.isRequired
+  notify: PropTypes.func
 }
 
 export default Blog

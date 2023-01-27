@@ -48,6 +48,20 @@ const App = () => {
     window.location.reload()
   }
 
+  const incrementLikes = async (blog) => {
+    try {
+      const updated = await blogService.update({  ...blog, user: blog.user.id, likes: blog.likes + 1 }, blog.id)
+      setBlogs(blogs.map(b => b.id !== updated.id ? b : updated))
+
+      // not the best solution, but ensures that the user is correctly shown on page
+      const rerender = await blogService.getAll()
+      setBlogs(rerender)
+
+    } catch (exception) {
+      console.log(exception)
+    }
+  }
+
   const addBlog = (blogObj) => {
     blogFormRef.current.toggleVisibility()
     blogService
@@ -60,6 +74,18 @@ const App = () => {
       }).catch(error => {
         notify(error.response.data.error)
       })
+  }
+
+  const handleDelete = async (blog) => {
+    try {
+      if (window.confirm(`Remove ${blog.title} by ${blog.author}?`)) {
+        await blogService.remove(blog.id)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+        notify(`${blog.title} by ${blog.author} removed`)
+      }
+    } catch (exception) {
+      console.log(exception)
+    }
   }
 
   const notify = ( message ) => {
@@ -97,7 +123,7 @@ const App = () => {
           handleSubmit={handleLogin}
         /> :
         <div>
-          <h2>blogs</h2>
+          <h2>Blogs</h2>
           {user.name} logged in <br />
           <button onClick={handleLogout}>Logout</button>
           <Togglable buttonLabel="new blog" closeLabel="close" ref={blogFormRef}>
@@ -106,10 +132,9 @@ const App = () => {
           {blogs.sort((a, b) => b.likes-a.likes).map(blog =>
             <Blog key={blog.id}
               blog={blog}
-              blogs={blogs}
-              setBlogs={setBlogs}
               user={user}
-              notify={notify}/>
+              incrementLikes={incrementLikes}
+              handleDelete={handleDelete} />
           )}
         </div>
       }
