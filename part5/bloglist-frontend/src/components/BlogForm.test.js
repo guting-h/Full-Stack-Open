@@ -15,11 +15,11 @@ test("<BlogForm /> calls event handler with the right details when submitted", a
     url: "https://fullstackopen.com/en/part5/",
   }
 
-  render(<BlogForm createBlog={createBlog}/>)
+  const container = render(<BlogForm createBlog={createBlog}/>).container
 
-  const titleInput = screen.getByRole("title")
-  const authorInput = screen.getByRole("author")
-  const urlInput = screen.getByRole("url")
+  const titleInput = container.querySelector("#title")
+  const authorInput = container.querySelector("#author")
+  const urlInput = container.querySelector("#url")
   const sendButton = screen.getByText("post blog")
 
   await user.type(titleInput, newBlog.title)

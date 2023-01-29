@@ -32,13 +32,11 @@ const App = () => {
       )
       blogService.setToken(user.token)
       setUser(user)
+      notify(`${username} logged in`)
       setUsername("")
       setPassword("")
     } catch (exception) {
-      setMessage("Wrong username or password")
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+      notify("Wrong username or password")
     }
   }
 
