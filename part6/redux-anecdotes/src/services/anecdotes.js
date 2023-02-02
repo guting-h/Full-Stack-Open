@@ -13,4 +13,8 @@ const postAnecdote = async (content) => {
   return response.data
 }
 
-export default { getAll, postAnecdote }
+const update = async (id, newObject) => {
+  return axios.put(`${baseUrl}/${id}`, newObject)
+}
+
+export default { getAll, postAnecdote, update }
