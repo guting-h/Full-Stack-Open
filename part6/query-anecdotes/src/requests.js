@@ -6,8 +6,11 @@ export const getAnecdotes = () =>
   axios.get(baseUrl).then(res => res.data)
 
 export const postAnecdote = async (AnecdoteObj) => {
-  const res = axios.post(baseUrl, AnecdoteObj)
-  return res.data
+  const res = await axios.post(baseUrl, AnecdoteObj)
+  if (res.status === 201) {
+    return res.data
+  }
+  throw new Error('Error encountered while posting')
 }
 
 export const updateAnecdote = async updatedObj => {
