@@ -1,53 +1,89 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import Countries from './components/countries'
 
-const Query = ({query, handleQuery}) =>
-    <input value={query} onChange={handleQuery} />
+const useField = (type) => {
+  const [value, setValue] = useState('')
 
-const App = () => {
-  const [countries, setCountries] = useState() 
-  const [query, setQuery] = useState('')
+  const onChange = (event) => {
+    setValue(event.target.value)
+  }
+
+  return {
+    type,
+    value,
+    onChange
+  }
+}
+
+const useCountry = (name) => {
+  const [country, setCountry] = useState(null)
 
   useEffect(() => {
-    axios
-      .get('https://restcountries.com/v3.1/all')
-      .then(response => {
-        console.log('promise fulfilled')
-        setCountries(response.data)
-      })
-  }, [])
-
-  const toArray = (obj)  => {
-    const result = [];
-    for (const prop in obj) {
-        const value = obj[prop];
-        typeof value === 'object'
-        ?result.push(toArray(value))
-        :result.push(value);
+    if (name) {
+      axios
+        .get(`https://restcountries.com/v3.1/name/${name}?fullText=true`)
+        .then((response => {
+          setCountry({...response.data[0], found: true})
+        })).catch( error => {
+          setCountry({found: false})
+          console.log(error)
+        })
     }
-    return result.flat();
-  } 
-
-  //process country data by query and pass them accordingly to the Countries component
-  const countriesToShow = () => {
-    const filtered = countries.filter(country => toArray(country.name).some(c => c.toLowerCase().includes(query.toLowerCase())))
-    const noOfFit = filtered.length
-    if (noOfFit > 10) {
-      return ["Too many matches, specify another filter"]
-    } else if (noOfFit <= 10 && noOfFit >=1 ) {
-      return filtered
-    } else {
-      return ["No match"]
-    }
-  }
     
-  const handleQuery = (event) => setQuery(event.target.value)
+  }, [name])
+
+  return country
+}
+
+const Country = ({ country }) => {
+  if (!country) {
+    return null
+  }
+
+
+  if (!country.found) {
+    return (
+      <div> 
+        country not found ...
+      </div>
+    )
+  }
+
+  return (
+    <div> 
+      <h2>{country.name.common}</h2>
+      <div>
+        capital: {country.capital[0]} <br/>
+        population: {country.population} <br/>
+        <img 
+          src={country.flags.png}
+          alt={country.flags.alt}
+            />
+      </div>
+    </div> 
+  )
+  
+}
+
+const App = () => {
+  const countryName = useField('text')
+  const [name, setName] = useState('')
+  const countryData = useCountry(name)
+
+  const handleSearch = (event) =>{
+    event.preventDefault()
+    setName(countryName.value)
+  }
 
   return (
     <div>
-      find countries: <Query query={query} handleQuery={handleQuery}/>
-      <Countries countries={countries} countriesToShow={countriesToShow}/>
+      <h2>Countries</h2>
+
+      <form onSubmit={handleSearch}>
+        <input {...countryName} />
+        <button>find</button>
+      </form>
+      <Country country={countryData} />
     </div>
   )
 }
